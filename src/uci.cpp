@@ -12,6 +12,8 @@ UCI UCI::GetInstance()
 
 bool UCI::Process( std::pair<std::string, std::string> command )
 {
+    LOG( "Processing %s\n", command.first.c_str() );
+
     std::map<std::string, UCICommand>::iterator it = handlers.find( command.first );
 
     if ( it != handlers.end() )
@@ -25,9 +27,18 @@ bool UCI::Process( std::pair<std::string, std::string> command )
 
 // Command handlers
 
+bool UCI::CommandPerft( std::string arguments )
+{
+    LOG( "--> perft\n" );
+    return true;
+}
+
 bool UCI::CommandQuit( std::string arguments )
 {
     LOG( "--> quit\n" );
+
+    // TODO shutdown internal threads etc
+
     return false;
 }
 
