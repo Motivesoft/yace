@@ -1,5 +1,9 @@
 #pragma once
 
+#include <vector>
+
+#include "constants.h"
+
 /// <summary>
 /// Board and everything to do with it
 /// </summary>
@@ -8,8 +12,6 @@ class Board
 {
 public:
     typedef unsigned char Piece;
-    typedef char Index8;
-    typedef char Index64;
     typedef unsigned int Move;
 
     Piece empty  = 0b00000000;
@@ -29,6 +31,11 @@ public:
     Piece black = 0b00001000;
 
     Index64 index8Mask = 0b00000111;
+    Index64 noSquare = -1;
+
+    // Game state
+    Index64 epSquare;
+    bool whiteToMove;
 
     inline bool isPiece( Piece piece )
     {
@@ -85,6 +92,11 @@ public:
         return ( index >> 3 ) & index8Mask;
     }
 
+    inline bool isValid( Index64 index )
+    {
+        return index != noSquare;
+    }
+
     Board()
     {
         // Default position
@@ -120,7 +132,43 @@ public:
     /// <param name="board">the board to copy</param>
     Board( const Board& board ) = delete;
 
+    bool getMoves( std::vector<Move>& moves );
+
 private:
+    Bitboard whiteKingLocation;
+    Bitboard whiteQueenLocation;
+    Bitboard whiteRookLocation;
+    Bitboard whiteBishopLocation;
+    Bitboard whiteKnightLocation;
+    Bitboard whitePawnLocation;
+
+    Bitboard blackKingLocation;
+    Bitboard blackQueenLocation;
+    Bitboard blackRookLocation;
+    Bitboard blackBishopLocation;
+    Bitboard blackKnightLocation;
+    Bitboard blackPawnLocation;
+
+    Bitboard whiteLocations;
+    Bitboard blackLocations;
+
     Piece board[ 64 ];
+
+    bool getMoves( std::vector<Move>& moves,
+                   Bitboard kingLocation,
+                   Bitboard queenLocation,
+                   Bitboard rookLocation,
+                   Bitboard bishopLocation,
+                   Bitboard knightLocation,
+                   Bitboard pawnLocation,
+                   Bitboard blockerLocations,
+                   Bitboard attackerLocations );
+
+    bool getDiagonalMoves( std::vector<Move>& moves, Bitboard pieceLocation );
+    bool getCrossedMoves( std::vector<Move>& moves, Bitboard pieceLocation );
+
+    bool getKingMoves( std::vector<Move>& moves, Bitboard pieceLocation );
+    bool getKnightMoves( std::vector<Move>& moves, Bitboard pieceLocation );
+    bool getPawnMoves( std::vector<Move>& moves, Bitboard pieceLocation );
 };
 

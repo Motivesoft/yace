@@ -2,13 +2,13 @@
 
 #include <stdio.h>
 
+typedef unsigned long long Bitboard;
+typedef char Index64;
+typedef char Index8;
+
 class Constants
 {
 public:
-    typedef unsigned long long Bitboard;
-    typedef unsigned char Index64;
-    typedef unsigned char Index8;
-
     static Constants getInstance()
     {
         static Constants constants;
