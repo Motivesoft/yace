@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 
+#include "constants.h"
 #include "uci.h"
 #include "yace.h"
 
@@ -17,7 +18,7 @@ int main( int argc, char** argv )
     std::string input;
 
     std::istream& stream = std::cin;
-
+    Constants::getInstance();
     while ( std::getline( stream, input ) )
     {
         std::string trimmed = trim( input );

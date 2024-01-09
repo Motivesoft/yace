@@ -8,7 +8,6 @@ class Board
 {
 public:
     typedef unsigned char Piece;
-    typedef unsigned long long Bitboard;
     typedef char Index8;
     typedef char Index64;
     typedef unsigned int Move;
@@ -93,6 +92,7 @@ public:
         {
             board[ index ] = empty;
         }
+
         board[ 4 ] = white | king;
         board[ 3 ] = white | queen;
         board[ 2 ] = board[ 5 ] = white | bishop;
@@ -102,6 +102,7 @@ public:
         {
             board[ index ] = white | pawn;
         }
+
         board[ 60 ] = black | king;
         board[ 59 ] = black | queen;
         board[ 58 ] = board[ 61 ] = black | bishop;
