@@ -54,6 +54,9 @@ private:
     Bitboard blackPawnExtendedMoves[ 64 ];
     Bitboard blackPawnCaptures[ 64 ];
 
+    Bitboard forwardMask[ 64 ];
+    Bitboard backwardMask[ 64 ];
+
     Bitboard whiteKingsideCastleEmpties;
     Bitboard whiteQueensideCastleEmpties;
     Bitboard whiteKingsideCastleUnchecked;
@@ -183,8 +186,12 @@ private:
                 }
             }
 
+            // Masks for moving forwards or backwards, which can be 'and'ed with other things to see how far we can travel
+            backwardMask[ index ] = (1ull << index) - 1;
+            forwardMask[ index ]  = ~(backwardMask[ index ] | (1ull << index));
+
             //printf( "\n\n(%c%c) %d\n", 'A'+file, '1'+rank, index);
-            //printBitboard( blackPawnCaptures[ index ] );
+            //printBitboard( forwardMask[ index ] | backwardMask[ index ] );
         }
 
         // Squares which must be empty to permit castling
