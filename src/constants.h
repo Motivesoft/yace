@@ -38,6 +38,7 @@ public:
             }
             printf( "\n" );
         }
+        printf( "\n" );
     }
 
 private:
@@ -52,14 +53,15 @@ private:
     Bitboard blackPawnMoves[ 64 ];
     Bitboard blackPawnExtendedMoves[ 64 ];
     Bitboard blackPawnCaptures[ 64 ];
-    Bitboard whiteKingsideCastleEmpties[ 64 ];
-    Bitboard whiteQueensideCastleEmpties[ 64 ];
-    Bitboard whiteKingsideCastleUnchecked[ 64 ];
-    Bitboard whiteQueensideCastleUnchecked[ 64 ];
-    Bitboard blackKingsideCastleEmpties[ 64 ];
-    Bitboard blackQueensideCastleEmpties[ 64 ];
-    Bitboard blackKingsideCastleUnchecked[ 64 ];
-    Bitboard blackQueensideCastleUnchecked[ 64 ];
+
+    Bitboard whiteKingsideCastleEmpties;
+    Bitboard whiteQueensideCastleEmpties;
+    Bitboard whiteKingsideCastleUnchecked;
+    Bitboard whiteQueensideCastleUnchecked;
+    Bitboard blackKingsideCastleEmpties;
+    Bitboard blackQueensideCastleEmpties;
+    Bitboard blackKingsideCastleUnchecked;
+    Bitboard blackQueensideCastleUnchecked;
 
     Constants()
     {
@@ -70,6 +72,12 @@ private:
             rookMoves[ index ] = 0;
             queenMoves[ index ] = 0;
             kingMoves[ index ] = 0;
+            whitePawnMoves[ index ] = 0;
+            whitePawnExtendedMoves[ index ] = 0;
+            whitePawnCaptures[ index ] = 0;
+            blackPawnMoves[ index ] = 0;
+            blackPawnExtendedMoves[ index ] = 0;
+            blackPawnCaptures[ index ] = 0;
 
             Index8 file = 0b00000111 & index;
             Index8 rank = 0b00000111 & (index >> 3);
@@ -78,12 +86,12 @@ private:
 
             for ( unsigned short arrayIndex = 0; arrayIndex < 8; arrayIndex++ )
             {
-                if ( file + knightArray[ arrayIndex ][ 0 ] >= 0 && file + knightArray[ arrayIndex ][ 0 ] < 8 )
+                Index8 destinationFile = file + knightArray[ arrayIndex ][ 0 ];
+                Index8 destinationRank = rank + knightArray[ arrayIndex ][ 1 ];
+
+                if ( destinationFile >= 0 && destinationFile < 8 && destinationRank >= 0 && destinationRank < 8 )
                 {
-                    if ( rank + knightArray[ arrayIndex ][ 1 ] >= 0 && rank + knightArray[ arrayIndex ][ 1 ] < 8 )
-                    {
-                        knightMoves[ index ] |= 1ull<<(index + (( knightArray[ arrayIndex ][ 1 ] << 3) + knightArray[ arrayIndex ][ 0 ] ));
-                    }
+                    knightMoves[ index ] |= 1ull << ( ( destinationRank << 3 ) + destinationFile );
                 }
             }
 
@@ -135,8 +143,60 @@ private:
                 }
             }
 
-            printf( "\n\n(%c%c) %d\n", 'A'+file, '1'+rank, index);
-            printBitboard( kingMoves[ index ] );
+            // Encode pawn moves even from the respective first ranks, even though pawns won't be there
+            // This does no harm and actually, having the captures encoded like that might help with attacker detection
+            if ( index < 56 )
+            {
+                whitePawnMoves[ index ] |= 1ull << ( index + 8 );
+
+                if ( file > 0 )
+                {
+                    whitePawnCaptures[ index ] |= 1ull << ( index + 7 );
+                }
+                if ( file < 7 )
+                {
+                    whitePawnCaptures[ index ] |= 1ull << ( index + 9 );
+                }
+
+                if ( index > 7 && index < 16 )
+                {
+                    whitePawnExtendedMoves[ index ] |= 1ull << ( index + 16 );
+                }
+            }
+
+            if ( index > 7 )
+            {
+                blackPawnMoves[ index ] |= 1ull << ( index - 8 );
+
+                if ( file > 0 )
+                {
+                    blackPawnCaptures[ index ] |= 1ull << ( index - 9 );
+                }
+                if ( file < 7 )
+                {
+                    blackPawnCaptures[ index ] |= 1ull << ( index - 7 );
+                }
+
+                if ( index > 47 && index < 56 )
+                {
+                    blackPawnExtendedMoves[ index ] |= 1ull << ( index - 16 );
+                }
+            }
+
+            //printf( "\n\n(%c%c) %d\n", 'A'+file, '1'+rank, index);
+            //printBitboard( blackPawnCaptures[ index ] );
         }
-    };
+
+        // Squares which must be empty to permit castling
+        whiteKingsideCastleEmpties  = 0b0000000000000000000000000000000000000000000000000000000001100000;
+        whiteQueensideCastleEmpties = 0b0000000000000000000000000000000000000000000000000000000000001110;
+        blackKingsideCastleEmpties  = 0b0110000000000000000000000000000000000000000000000000000000000000;
+        blackQueensideCastleEmpties = 0b0000111000000000000000000000000000000000000000000000000000000000;
+
+        // Squares which must not be under attack to permit castling
+        whiteKingsideCastleUnchecked  = 0b0000000000000000000000000000000000000000000000000000000001110000;
+        whiteQueensideCastleUnchecked = 0b0000000000000000000000000000000000000000000000000000000000011100;
+        blackKingsideCastleUnchecked  = 0b0111000000000000000000000000000000000000000000000000000000000000;
+        blackQueensideCastleUnchecked = 0b0001110000000000000000000000000000000000000000000000000000000000;
+    }
 };
